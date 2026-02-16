@@ -1,135 +1,252 @@
-import Link from "next/link";
-import Newsletter from "@/components/Newsletter";
+"use client";
 
-const featuredPosts = [
-  {
-    slug: "operators-guide-to-llm-evaluation",
-    title: "The Operator's Guide to LLM Evaluation",
-    excerpt:
-      "A practical framework for evaluating LLM performance in production — without a PhD in ML.",
-    date: "2026-02-10",
-    tag: "Guide",
+import { useState } from "react";
+
+interface EvaluationResult {
+  companyName: string;
+  verdict: "worth_joining" | "proceed_with_caution" | "red_flags";
+  verdictLabel: string;
+  summary: string;
+  strengths: string[];
+  concerns: string[];
+  founderInsights: string;
+  spaceOutlook: string;
+  advice: string;
+}
+
+const verdictStyles = {
+  worth_joining: {
+    bg: "bg-teal-50",
+    border: "border-teal-200",
+    text: "text-teal-700",
+    badge: "bg-teal-100 text-teal-800",
   },
-  {
-    slug: "building-ai-products-that-stick",
-    title: "Building AI Products That Stick",
-    excerpt:
-      "Why most AI features get ignored, and the product ops patterns that change that.",
-    date: "2026-01-28",
-    tag: "Strategy",
+  proceed_with_caution: {
+    bg: "bg-amber-50",
+    border: "border-amber-200",
+    text: "text-amber-700",
+    badge: "bg-amber-100 text-amber-800",
   },
-  {
-    slug: "prompt-management-at-scale",
-    title: "Prompt Management at Scale",
-    excerpt:
-      "How to version, test, and deploy prompts like a real engineering artifact.",
-    date: "2026-01-15",
-    tag: "Technical",
+  red_flags: {
+    bg: "bg-red-50",
+    border: "border-red-200",
+    text: "text-red-700",
+    badge: "bg-red-100 text-red-800",
   },
-];
+};
 
 export default function Home() {
+  const [url, setUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<EvaluationResult | null>(null);
+  const [error, setError] = useState("");
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!url.trim()) return;
+
+    setLoading(true);
+    setError("");
+    setResult(null);
+
+    try {
+      const res = await fetch("/api/evaluate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: url.trim() }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Something went wrong");
+      }
+
+      const data = await res.json();
+      setResult(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <div className="max-w-5xl mx-auto px-6">
-      {/* Hero */}
-      <section className="py-20 md:py-28">
-        <h1 className="text-4xl md:text-5xl font-bold text-charcoal leading-tight max-w-2xl">
-          I help AI teams ship better products.{" "}
-          <span className="text-amber-600">Here&apos;s what I&apos;ve learned.</span>
+    <div className="max-w-3xl mx-auto px-6 py-16">
+      {/* Header */}
+      <div className="text-center mb-12">
+        <h1 className="text-4xl md:text-5xl font-bold text-charcoal">
+          Should I Apply?
         </h1>
-        <p className="mt-6 text-lg text-warm-gray max-w-xl leading-relaxed">
-          Practical resources, frameworks, and hard-won lessons for AI operators
-          and product managers navigating the frontier.
+        <p className="mt-4 text-lg text-warm-gray max-w-xl mx-auto leading-relaxed">
+          Enter a company&apos;s website URL and get an AI-powered evaluation of
+          whether it&apos;s worth joining — based on public data, news, and
+          market signals.
         </p>
-        <div className="mt-8 flex flex-wrap gap-4">
-          <Link
-            href="/blog"
-            className="px-6 py-3 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700 transition-colors"
-          >
-            Read the Blog
-          </Link>
-          <Link
-            href="/about"
-            className="px-6 py-3 border border-amber-300 text-charcoal rounded-xl font-medium hover:bg-amber-100 transition-colors"
-          >
-            About Me
-          </Link>
-        </div>
-      </section>
+      </div>
 
-      {/* Company Evaluation Tool CTA */}
-      <section className="pb-16">
-        <div className="bg-charcoal rounded-2xl p-8 md:p-12 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
-            Should I Apply?
-          </h2>
-          <p className="text-amber-200/80 max-w-lg mx-auto leading-relaxed mb-6">
-            Thinking about joining a company? Enter their URL and get an
-            AI-powered evaluation of their culture, funding, leadership, and
-            market position.
+      {/* Search Form */}
+      <form onSubmit={handleSubmit} className="mb-12">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <input
+            type="text"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="e.g. stripe.com or https://openai.com"
+            className="flex-1 px-5 py-4 rounded-xl border border-amber-200 bg-white text-charcoal placeholder:text-warm-gray/50 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-lg"
+          />
+          <button
+            type="submit"
+            disabled={loading || !url.trim()}
+            className="px-8 py-4 bg-teal-600 text-white rounded-xl font-medium text-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+          >
+            {loading ? "Analyzing..." : "Evaluate"}
+          </button>
+        </div>
+      </form>
+
+      {/* Loading State */}
+      {loading && (
+        <div className="text-center py-16">
+          <div className="inline-block w-8 h-8 border-4 border-teal-200 border-t-teal-600 rounded-full animate-spin mb-4" />
+          <p className="text-warm-gray text-lg">
+            Researching this company...
           </p>
-          <Link
-            href="/evaluate"
-            className="inline-block px-8 py-3.5 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-500 transition-colors text-lg"
+          <p className="text-warm-gray/60 text-sm mt-2">
+            Gathering data from public sources and analyzing with AI
+          </p>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
+          <p className="text-red-700 font-medium">{error}</p>
+          <p className="text-red-500 text-sm mt-2">
+            Please check the URL and try again.
+          </p>
+        </div>
+      )}
+
+      {/* Results */}
+      {result && (
+        <div className="space-y-6">
+          {/* Verdict Card */}
+          <div
+            className={`${verdictStyles[result.verdict].bg} ${verdictStyles[result.verdict].border} border rounded-2xl p-8 text-center`}
           >
-            Try it free
-          </Link>
-        </div>
-      </section>
-
-      {/* Featured Posts */}
-      <section className="pb-16">
-        <h2 className="text-2xl font-bold text-charcoal mb-8">Featured</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {featuredPosts.map((post) => (
-            <Link
-              key={post.slug}
-              href={`/blog/${post.slug}`}
-              className="group bg-white border border-amber-200/50 rounded-2xl p-6 hover:shadow-lg hover:shadow-amber-100/50 transition-all"
+            <span
+              className={`inline-block px-4 py-1.5 rounded-full text-sm font-semibold mb-4 ${verdictStyles[result.verdict].badge}`}
             >
-              <span className="inline-block text-xs font-semibold text-teal-600 bg-teal-50 px-2.5 py-1 rounded-full mb-3">
-                {post.tag}
-              </span>
-              <h3 className="font-semibold text-charcoal group-hover:text-amber-600 transition-colors">
-                {post.title}
-              </h3>
-              <p className="text-warm-gray text-sm mt-2 leading-relaxed">
-                {post.excerpt}
-              </p>
-              <p className="text-xs text-warm-gray/60 mt-4">{post.date}</p>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* About Preview */}
-      <section className="pb-16">
-        <div className="bg-white border border-amber-200/50 rounded-2xl p-8 md:p-12 flex flex-col md:flex-row gap-8 items-center">
-          <div className="w-24 h-24 bg-amber-200 rounded-full flex items-center justify-center text-3xl font-bold text-amber-700 shrink-0">
-            J
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-charcoal">Hey, I&apos;m Jason</h2>
-            <p className="text-warm-gray mt-3 leading-relaxed">
-              I work at the intersection of AI and product operations. I&apos;ve spent
-              my career helping teams figure out how to take AI from demo to
-              production — the messy, human, operational side that doesn&apos;t make the
-              headlines. This site is where I share what I&apos;ve learned.
+              {result.verdictLabel}
+            </span>
+            <h2 className="text-2xl font-bold text-charcoal mb-2">
+              {result.companyName}
+            </h2>
+            <p className="text-warm-gray leading-relaxed max-w-xl mx-auto">
+              {result.summary}
             </p>
-            <Link
-              href="/about"
-              className="inline-block mt-4 text-teal-600 font-medium text-sm hover:text-teal-700 transition-colors"
-            >
-              More about me &rarr;
-            </Link>
           </div>
-        </div>
-      </section>
 
-      {/* Newsletter */}
-      <section className="pb-20">
-        <Newsletter />
-      </section>
+          {/* Strengths & Concerns */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white border border-amber-200/50 rounded-2xl p-6">
+              <h3 className="font-semibold text-charcoal mb-4 flex items-center gap-2">
+                <span className="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center text-teal-600 text-sm">
+                  +
+                </span>
+                Strengths
+              </h3>
+              <ul className="space-y-3">
+                {result.strengths.map((s, i) => (
+                  <li
+                    key={i}
+                    className="text-warm-gray text-sm leading-relaxed pl-4 border-l-2 border-teal-200"
+                  >
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="bg-white border border-amber-200/50 rounded-2xl p-6">
+              <h3 className="font-semibold text-charcoal mb-4 flex items-center gap-2">
+                <span className="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 text-sm">
+                  !
+                </span>
+                Concerns
+              </h3>
+              <ul className="space-y-3">
+                {result.concerns.map((c, i) => (
+                  <li
+                    key={i}
+                    className="text-warm-gray text-sm leading-relaxed pl-4 border-l-2 border-amber-200"
+                  >
+                    {c}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Founder Insights */}
+          <div className="bg-white border border-amber-200/50 rounded-2xl p-6">
+            <h3 className="font-semibold text-charcoal mb-3">
+              Founder & Leadership Insights
+            </h3>
+            <p className="text-warm-gray text-sm leading-relaxed">
+              {result.founderInsights}
+            </p>
+          </div>
+
+          {/* Space Outlook */}
+          <div className="bg-white border border-amber-200/50 rounded-2xl p-6">
+            <h3 className="font-semibold text-charcoal mb-3">
+              Industry & Market Outlook
+            </h3>
+            <p className="text-warm-gray text-sm leading-relaxed">
+              {result.spaceOutlook}
+            </p>
+          </div>
+
+          {/* Bottom Line */}
+          <div className="bg-charcoal rounded-2xl p-8 text-center">
+            <h3 className="text-white font-semibold text-lg mb-3">
+              Bottom Line
+            </h3>
+            <p className="text-amber-200 leading-relaxed max-w-xl mx-auto">
+              {result.advice}
+            </p>
+          </div>
+
+          {/* Disclaimer */}
+          <p className="text-center text-warm-gray/50 text-xs">
+            This evaluation is based on publicly available information and AI
+            analysis. Always do your own research before making career decisions.
+          </p>
+        </div>
+      )}
+
+      {/* Empty state — shown before first search */}
+      {!loading && !result && !error && (
+        <div className="text-center py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-lg mx-auto">
+            {["Company Website", "News & Press", "Market Signals"].map(
+              (source) => (
+                <div
+                  key={source}
+                  className="bg-white border border-amber-200/50 rounded-xl p-4"
+                >
+                  <p className="text-sm text-warm-gray font-medium">
+                    {source}
+                  </p>
+                </div>
+              )
+            )}
+          </div>
+          <p className="text-warm-gray/50 text-sm mt-6">
+            We analyze these data sources to give you an informed opinion
+          </p>
+        </div>
+      )}
     </div>
   );
 }

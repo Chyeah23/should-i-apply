@@ -1,15 +1,11 @@
 import type { Metadata } from "next";
 import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: {
-    default: "Jason | AI Product Operations",
-    template: "%s | Jason",
-  },
+  title: "Should I Apply? — AI Company Evaluator",
   description:
-    "Helping AI teams ship better products. Resources, guides, and insights for AI operators and product managers.",
+    "Enter a company's URL and get an AI-powered evaluation of their culture, funding, leadership, and market position before you apply.",
 };
 
 export default function RootLayout({
@@ -22,7 +18,6 @@ export default function RootLayout({
       <body className="antialiased">
         <Navigation />
         <main className="min-h-screen">{children}</main>
-        <Footer />
       </body>
     </html>
   );

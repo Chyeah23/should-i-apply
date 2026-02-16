@@ -57,6 +57,26 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Company Evaluation Tool CTA */}
+      <section className="pb-16">
+        <div className="bg-charcoal rounded-2xl p-8 md:p-12 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+            Should I Apply?
+          </h2>
+          <p className="text-amber-200/80 max-w-lg mx-auto leading-relaxed mb-6">
+            Thinking about joining a company? Enter their URL and get an
+            AI-powered evaluation of their culture, funding, leadership, and
+            market position.
+          </p>
+          <Link
+            href="/evaluate"
+            className="inline-block px-8 py-3.5 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-500 transition-colors text-lg"
+          >
+            Try it free
+          </Link>
+        </div>
+      </section>
+
       {/* Featured Posts */}
       <section className="pb-16">
         <h2 className="text-2xl font-bold text-charcoal mb-8">Featured</h2>

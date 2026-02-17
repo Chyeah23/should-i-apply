@@ -35,6 +35,26 @@ const verdictStyles = {
   },
 };
 
+function RocketIcon() {
+  return (
+    <svg
+      width="32"
+      height="32"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="white"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+      <path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+      <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+      <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+    </svg>
+  );
+}
+
 export default function Home() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -71,37 +91,36 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6 py-16">
-      <div className="max-w-2xl w-full">
+    <div className="min-h-screen flex items-center justify-center px-6">
+      <div className="max-w-xl w-full">
         {/* Header */}
-        <div className="text-center mb-8">
-          {/* Rocket Icon */}
+        <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-6">
-            <span className="text-3xl">🚀</span>
+            <RocketIcon />
           </div>
 
           <h1 className="text-5xl font-bold text-gray-900 mb-3">
             Should I Apply?
           </h1>
-          <p className="text-xl text-gray-500">
+          <p className="text-lg text-gray-400">
             Get a quick download on any startup
           </p>
         </div>
 
         {/* Search Form */}
-        <form onSubmit={handleSubmit} className="mb-12">
+        <form onSubmit={handleSubmit} className="mb-8">
           <div className="flex gap-3">
             <input
               type="text"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="Enter company website (e.g., stripe.com)"
-              className="flex-1 px-6 py-4 rounded-2xl border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg shadow-sm"
+              className="flex-1 px-5 py-4 rounded-xl bg-gray-100 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 text-base border-none"
             />
             <button
               type="submit"
               disabled={loading || !url.trim()}
-              className="px-10 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl font-semibold text-lg hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap shadow-lg shadow-purple-500/20"
+              className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-semibold text-base hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
             >
               {loading ? "Analyzing..." : "Tell me"}
             </button>
@@ -110,12 +129,12 @@ export default function Home() {
 
         {/* Loading State */}
         {loading && (
-          <div className="text-center py-16 bg-white rounded-2xl border border-gray-200 shadow-sm">
+          <div className="text-center py-12">
             <div className="inline-block w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mb-4" />
             <p className="text-gray-700 text-lg">
               Researching this company...
             </p>
-            <p className="text-gray-500 text-sm mt-2">
+            <p className="text-gray-400 text-sm mt-2">
               Gathering data from public sources and analyzing with AI
             </p>
           </div>
@@ -123,7 +142,7 @@ export default function Home() {
 
         {/* Error State */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center shadow-sm">
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
             <p className="text-red-700 font-medium">{error}</p>
             <p className="text-red-500 text-sm mt-2">
               Please check the URL and try again.
@@ -136,7 +155,7 @@ export default function Home() {
           <div className="space-y-6">
             {/* Verdict Card */}
             <div
-              className={`${verdictStyles[result.verdict].bg} ${verdictStyles[result.verdict].border} border rounded-2xl p-8 text-center shadow-sm`}
+              className={`${verdictStyles[result.verdict].bg} ${verdictStyles[result.verdict].border} border rounded-2xl p-8 text-center`}
             >
               <span
                 className={`inline-block px-4 py-1.5 rounded-full text-sm font-semibold mb-4 ${verdictStyles[result.verdict].badge}`}
@@ -153,7 +172,7 @@ export default function Home() {
 
             {/* Strengths & Concerns */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+              <div className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                   <span className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-sm">
                     +
@@ -171,7 +190,7 @@ export default function Home() {
                   ))}
                 </ul>
               </div>
-              <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+              <div className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                   <span className="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 text-sm">
                     !
@@ -192,7 +211,7 @@ export default function Home() {
             </div>
 
             {/* Founder Insights */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <div className="bg-gray-50 rounded-2xl p-6">
               <h3 className="font-semibold text-gray-900 mb-3">
                 Founder & Leadership Insights
               </h3>
@@ -202,7 +221,7 @@ export default function Home() {
             </div>
 
             {/* Space Outlook */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <div className="bg-gray-50 rounded-2xl p-6">
               <h3 className="font-semibold text-gray-900 mb-3">
                 Industry & Market Outlook
               </h3>
@@ -212,7 +231,7 @@ export default function Home() {
             </div>
 
             {/* Bottom Line */}
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-8 text-center shadow-lg">
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-8 text-center">
               <h3 className="text-white font-semibold text-lg mb-3">
                 Bottom Line
               </h3>
@@ -225,29 +244,6 @@ export default function Home() {
             <p className="text-center text-gray-400 text-xs">
               This evaluation is based on publicly available information and AI
               analysis. Always do your own research before making career decisions.
-            </p>
-          </div>
-        )}
-
-        {/* Empty state — shown before first search */}
-        {!loading && !result && !error && (
-          <div className="text-center py-8">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-lg mx-auto">
-              {["Company Website", "News & Press", "Market Signals"].map(
-                (source) => (
-                  <div
-                    key={source}
-                    className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm"
-                  >
-                    <p className="text-sm text-gray-600 font-medium">
-                      {source}
-                    </p>
-                  </div>
-                )
-              )}
-            </div>
-            <p className="text-gray-400 text-sm mt-6">
-              We analyze these data sources to give you an informed opinion
             </p>
           </div>
         )}
